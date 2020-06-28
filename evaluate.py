@@ -92,7 +92,7 @@ def main(_argv):
             image_name = image_path.split('/')[-1]
             image = cv2.imread(image_path)
             image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-            bbox_data_gt = np.array([list(map(int, box.split(','))) for box in annotation[1:]])
+            bbox_data_gt = np.array([list(map(float, box.split(','))) for box in annotation[1:]])
 
             if len(bbox_data_gt) == 0:
                 bboxes_gt = []
@@ -105,17 +105,17 @@ def main(_argv):
             num_bbox_gt = len(bboxes_gt)
             with open(ground_truth_path, 'w') as f:
                     for i in range(num_bbox_gt):
-                    # esto
-                    class_name = CLASSES[classes_gt[i]]
-                    # esto
-                    if i == 0:
-                      current_class = class_name
-                    class_name = CLASSES[classes_gt[i]]
-                    if class_name == current_class:
-                      xmin, ymin, xmax, ymax = list(map(str, bboxes_gt[i]))
-                      bbox_mess = ' '.join([class_name, xmin, ymin, xmax, ymax]) + '\n'
-                      f.write(bbox_mess)
-                      print('\t' + str(bbox_mess).strip())
+                      # esto
+                      class_name = CLASSES[classes_gt[i]]
+                      # esto
+                      if i == 0:
+                        current_class = class_name
+                      class_name = CLASSES[classes_gt[i]]
+                      if class_name == current_class:
+                        xmin, ymin, xmax, ymax = list(map(str, bboxes_gt[i]))
+                        bbox_mess = ' '.join([class_name, xmin, ymin, xmax, ymax]) + '\n'
+                        f.write(bbox_mess)
+                        print('\t' + str(bbox_mess).strip())
             print('=> predict result of %s:' % image_name)
             predict_result_path = os.path.join(predicted_dir_path, str(num) + '.txt')
             # Predict Process
@@ -162,5 +162,3 @@ if __name__ == '__main__':
         app.run(main)
     except SystemExit:
         pass
-
-
