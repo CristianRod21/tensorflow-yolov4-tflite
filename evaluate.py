@@ -8,6 +8,7 @@ import tensorflow as tf
 import core.utils as utils
 from core.config import cfg
 from core.yolov4 import YOLOv4, YOLOv3, YOLOv3_tiny, decode
+import time
 
 flags.DEFINE_string('weights', './data/yolov4.weights',
                     'path to weights file')
@@ -124,7 +125,9 @@ def main(_argv):
             image_data = image_data[np.newaxis, ...].astype(np.float32)
 
             if FLAGS.framework == "tf":
+                startTime = time.time()
                 pred_bbox = model.predict(image_data)
+                times.append(time.time()-startTime)
             else:
                 interpreter.set_tensor(input_details[0]['index'], image_data)
                 interpreter.invoke()
@@ -156,6 +159,7 @@ def main(_argv):
                     f.write(bbox_mess)
                     print('\t' + str(bbox_mess).strip())
             print(num, num_lines)
+            print("Elapsed time: " +  str(sum(times) / len(times) ))
 
 if __name__ == '__main__':
     try:
