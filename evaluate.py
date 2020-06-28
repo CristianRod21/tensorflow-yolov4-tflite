@@ -41,6 +41,8 @@ def main(_argv):
     os.mkdir(predicted_dir_path)
     os.mkdir(ground_truth_dir_path)
     os.mkdir(cfg.TEST.DECTECTED_IMAGE_PATH)
+    times = []
+    classes = ['Book', 'Bottle', 'Computer keyboard', 'Computer mouse', 'Laptop', 'Mobile phone', 'Backpack']
 
     # Build Model
     if FLAGS.framework == 'tf':
@@ -80,6 +82,7 @@ def main(_argv):
         output_details = interpreter.get_output_details()
         print(input_details)
         print(output_details)
+        
 
     num_lines = sum(1 for line in open(FLAGS.annotation_path))
     with open(cfg.TEST.ANNOT_PATH, 'r') as annotation_file:
@@ -97,16 +100,22 @@ def main(_argv):
             else:
                 bboxes_gt, classes_gt = bbox_data_gt[:, :4], bbox_data_gt[:, 4]
             ground_truth_path = os.path.join(ground_truth_dir_path, str(num) + '.txt')
-
+            current_class = ''
             print('=> ground truth of %s:' % image_name)
             num_bbox_gt = len(bboxes_gt)
             with open(ground_truth_path, 'w') as f:
-                for i in range(num_bbox_gt):
+                    for i in range(num_bbox_gt):
+                    # esto
                     class_name = CLASSES[classes_gt[i]]
-                    xmin, ymin, xmax, ymax = list(map(str, bboxes_gt[i]))
-                    bbox_mess = ' '.join([class_name, xmin, ymin, xmax, ymax]) + '\n'
-                    f.write(bbox_mess)
-                    print('\t' + str(bbox_mess).strip())
+                    # esto
+                    if i == 0:
+                      current_class = class_name
+                    class_name = CLASSES[classes_gt[i]]
+                    if class_name == current_class:
+                      xmin, ymin, xmax, ymax = list(map(str, bboxes_gt[i]))
+                      bbox_mess = ' '.join([class_name, xmin, ymin, xmax, ymax]) + '\n'
+                      f.write(bbox_mess)
+                      print('\t' + str(bbox_mess).strip())
             print('=> predict result of %s:' % image_name)
             predict_result_path = os.path.join(predicted_dir_path, str(num) + '.txt')
             # Predict Process
@@ -136,6 +145,7 @@ def main(_argv):
 
             with open(predict_result_path, 'w') as f:
                 for bbox in bboxes:
+                  if  (CLASSES[int(bbox[5])] in classes) and (current_class == CLASSES[int(bbox[5])]) :
                     coor = np.array(bbox[:4], dtype=np.int32)
                     score = bbox[4]
                     class_ind = int(bbox[5])
